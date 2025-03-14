@@ -1,4 +1,4 @@
-# Workspace – REST API Interface for File-Based Storage
+# Workspace – REST API Interface for File-Based Storage for Custom GPTs
 
 **Workspace** is a lightweight, standalone REST API service that acts as a bridge between a custom GPT (or any other HTTP client) and a sandboxed section of the deployment server’s **filesystem workspace folder**. It enables programmatic listing, creation, reading, and updating of files, allowing GPT-based document automation or bot integrations without needing a database or third-party system.
 
