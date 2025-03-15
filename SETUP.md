@@ -75,6 +75,8 @@ Confirm public access before proceeding to SSL setup.
 
 # Part 2 — Upgrading to HTTPS (SSL/TLS)
 
+OpenAI will not allow you to connect with an operator NOT on HTTPS and will not accept self-signed certificates (it will fail silently).
+
 ## 🔐 5. Install Certbot
 ```bash
 sudo apt install certbot python3-certbot-nginx -y
