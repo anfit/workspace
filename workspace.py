@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify, abort, send_file
 import os
 import shutil
+import fnmatch
 
 app = Flask(__name__)
 
 CONFIG = {}
+GITIGNORE_PATTERNS = []
 
 def load_config(path='workspace.properties'):
     if not os.path.exists(path):
@@ -17,9 +19,24 @@ def load_config(path='workspace.properties'):
     if 'base_path' not in CONFIG:
         raise RuntimeError("'base_path' configuration is required.")
 
-load_config()
+    load_gitignore_patterns()
 
-BASE_PATH = CONFIG['base_path']
+def load_gitignore_patterns():
+    GITIGNORE_PATTERNS.clear()
+    gitignore_path = os.path.join(CONFIG['base_path'], '.gitignore')
+    if os.path.exists(gitignore_path):
+        with open(gitignore_path) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#'):
+                    GITIGNORE_PATTERNS.append(line)
+
+def is_gitignored(path):
+    rel_path = os.path.relpath(path, CONFIG['base_path'])
+    for pattern in GITIGNORE_PATTERNS:
+        if fnmatch.fnmatch(rel_path, pattern):
+            return True
+    return False
 
 def check_auth():
     secret = request.headers.get("X-GPT-Secret")
@@ -27,8 +44,8 @@ def check_auth():
         abort(403, description="Forbidden: Invalid GPT shared secret")
 
 def safe_path(relative_path):
-    full_path = os.path.abspath(os.path.join(BASE_PATH, relative_path))
-    if not full_path.startswith(os.path.abspath(BASE_PATH)):
+    full_path = os.path.abspath(os.path.join(CONFIG['base_path'], relative_path))
+    if not full_path.startswith(os.path.abspath(CONFIG['base_path'])):
         abort(400, 'Invalid path traversal attempt.')
     return full_path
 
@@ -40,11 +57,16 @@ def resolve_or_create_path(relative_path):
 @app.route('/files', methods=['GET'])
 def list_files():
     check_auth()
+    load_gitignore_patterns()
     files = []
-    for root, _, filenames in os.walk(BASE_PATH):
-        rel_root = os.path.relpath(root, BASE_PATH)
+    for root, dirs, filenames in os.walk(CONFIG['base_path']):
+        dirs[:] = [d for d in dirs if d != '.git']
+        rel_root = os.path.relpath(root, CONFIG['base_path'])
         for fname in filenames:
-            files.append(os.path.join(rel_root, fname))
+            fpath = os.path.join(rel_root, fname)
+            full_fpath = os.path.join(root, fname)
+            if not is_gitignored(full_fpath):
+                files.append(fpath)
     return jsonify(files)
 
 @app.route('/files/<path:filename>', methods=['GET'])
