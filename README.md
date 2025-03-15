@@ -86,7 +86,7 @@ To integrate this API with a Custom GPT:
 
 ## 📄 License
 
-MIT License (or specify your desired license here)
+MIT License.
 
 ## 🙌 Credits
 
