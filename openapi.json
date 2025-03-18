@@ -403,6 +403,49 @@
           }
         }
       }
+    },
+    "/commit": {
+      "post": {
+        "summary": "Commit changes to Git repository",
+        "operationId": "commitChanges",
+        "security": [
+          { "BearerAuth": [] }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "description": "Commit message for Git"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Changes committed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "commit_message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "403": { "description": "Forbidden: Invalid token" },
+          "500": { "description": "Git commit failed" }
+        }
+      }
     }
   },
   "components": {

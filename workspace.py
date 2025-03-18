@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, abort, send_file
 import os
 import shutil
 import fnmatch
+import subprocess
 
 app = Flask(__name__)
 
@@ -138,6 +139,18 @@ def delete_file():
         abort(404, 'File not found.')
     os.remove(full_path)
     return jsonify({'message': 'File deleted.', 'path': data['path']})
+
+@app.route('/commit', methods=['POST'])
+def commit_changes():
+    check_auth()
+    data = request.get_json()
+    message = data.get("message", "Auto commit from Workspace API")
+    try:
+        subprocess.run(["git", "add", "*"], cwd=CONFIG['base_path'], check=True)
+        subprocess.run(["git", "commit", "-m", message], cwd=CONFIG['base_path'], check=True)
+    except subprocess.CalledProcessError as e:
+        abort(500, description=f"Git commit failed: {e}")
+    return jsonify({"message": "Changes committed.", "commit_message": message})
 
 @app.route('/health', methods=['GET'])
 def api_health():

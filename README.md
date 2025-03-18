@@ -1,6 +1,6 @@
 # Workspace – REST API Interface for File-Based Storage for Custom GPTs
 
-**Workspace** is a lightweight, standalone REST API service that acts as a bridge between a custom GPT (or any other HTTP client) and a sandboxed section of the deployment server’s **filesystem workspace folder**. It enables programmatic listing, creation, reading, and updating of files, allowing GPT-based document automation or bot integrations without needing a database or third-party system.
+**Workspace** is a lightweight, standalone REST API service that acts as a bridge between a custom GPT (or any other HTTP client) and a sandboxed section of the deployment server’s **filesystem workspace folder**. It enables programmatic listing, creation, reading, updating, and committing of files, allowing GPT-based document automation or bot integrations without needing a database or third-party system.
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -21,6 +21,7 @@ Designed to integrate with a **Custom GPT Operator Tool**, this API allows a GPT
 - **Read** content of a file by name
 - **Create** a new file under the root directory
 - **Update** existing file content by name
+- **Commit** changes to a Git repository
 
 This provides a clean and safe interface for document automation in a sandboxed file environment.
 
@@ -73,6 +74,7 @@ GPT tool calls must include this to access or modify file contents. The token sh
 | GET    | `/files/{filename}` | Read a file by name                    | ✅ Yes          |
 | POST   | `/files`            | Create a new file                      | ✅ Yes          |
 | PUT    | `/files/{filename}` | Update a file by name                  | ✅ Yes          |
+| POST   | `/commit`           | Commit changes to Git repository       | ✅ Yes          |
 | GET    | `/openapi.json`     | Get OpenAPI schema (for GPT integration) | ❌ No        |
 | GET    | `/health`           | Health check                           | ❌ No           |
 
@@ -82,7 +84,7 @@ To integrate this API with a Custom GPT:
 1. Upload or import `openapi.json` into the GPT tool definition. **Before doing so, make sure you edit the file and replace the `servers.url` field (currently set to a placeholder) with the actual domain or IP address where your API is hosted.**
 2. Configure the `Authorization: Bearer <token>` header in your GPT setup.
 3. Ensure the API server is reachable over HTTPS at the declared domain.
-4. Your GPT will now be able to list, read, create, and update files in the sandboxed directory.
+4. Your GPT will now be able to list, read, create, update, and commit files in the sandboxed directory.
 
 ## 📄 License
 
