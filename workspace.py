@@ -7,6 +7,7 @@ app = Flask(__name__)
 
 CONFIG = {}
 GITIGNORE_PATTERNS = []
+ALWAYS_EXCLUDE_DIRS = {'.git', 'venv', 'node_modules', 'target'}
 
 def load_config(path='workspace.properties'):
     if not os.path.exists(path):
@@ -60,7 +61,7 @@ def list_files():
     load_gitignore_patterns()
     files = []
     for root, dirs, filenames in os.walk(CONFIG['base_path']):
-        dirs[:] = [d for d in dirs if d != '.git']
+        dirs[:] = [d for d in dirs if d not in ALWAYS_EXCLUDE_DIRS]
         rel_root = os.path.relpath(root, CONFIG['base_path'])
         for fname in filenames:
             fpath = os.path.join(rel_root, fname)
