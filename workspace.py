@@ -40,9 +40,12 @@ def is_gitignored(path):
     return False
 
 def check_auth():
-    secret = request.headers.get("X-GPT-Secret")
-    if not secret or secret != CONFIG["gpt_shared_secret"]:
-        abort(403, description="Forbidden: Invalid GPT shared secret")
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        abort(403, description="Forbidden: Missing or invalid Authorization header.")
+    token = auth_header.split(" ", 1)[1]
+    if token != CONFIG["gpt_shared_secret"]:
+        abort(403, description="Forbidden: Invalid token.")
 
 def safe_path(relative_path):
     full_path = os.path.abspath(os.path.join(CONFIG['base_path'], relative_path))

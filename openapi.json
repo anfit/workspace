@@ -3,7 +3,7 @@
   "info": {
     "title": "Workspace API",
     "version": "2.2.0",
-    "description": "REST API for managing files within a Linux workspace directory. All requests must be authenticated using a pre-shared GPT secret provided in the 'X-GPT-Secret' header."
+    "description": "REST API for managing files within a Linux workspace directory. All requests must be authenticated using a Bearer token provided in the Authorization header."
   },
   "servers": [
     {
@@ -18,7 +18,7 @@
         "operationId": "listFiles",
         "security": [
           {
-            "GPTSecret": []
+            "BearerAuth": []
           }
         ],
         "responses": {
@@ -36,7 +36,7 @@
             }
           },
           "403": {
-            "description": "Forbidden: Invalid GPT Secret"
+            "description": "Forbidden: Invalid token"
           }
         }
       },
@@ -45,7 +45,7 @@
         "operationId": "createFile",
         "security": [
           {
-            "GPTSecret": []
+            "BearerAuth": []
           }
         ],
         "requestBody": {
@@ -89,7 +89,7 @@
             }
           },
           "403": {
-            "description": "Forbidden: Invalid GPT Secret"
+            "description": "Forbidden: Invalid token"
           },
           "409": {
             "description": "Conflict: File already exists"
@@ -101,7 +101,7 @@
         "operationId": "deleteFile",
         "security": [
           {
-            "GPTSecret": []
+            "BearerAuth": []
           }
         ],
         "requestBody": {
@@ -142,7 +142,7 @@
             }
           },
           "403": {
-            "description": "Forbidden: Invalid GPT Secret"
+            "description": "Forbidden: Invalid token"
           },
           "404": {
             "description": "File not found"
@@ -189,7 +189,7 @@
             }
           },
           "403": {
-            "description": "Forbidden: Invalid GPT Secret"
+            "description": "Forbidden: Invalid token"
           },
           "404": {
             "description": "File not found"
@@ -249,7 +249,7 @@
             }
           },
           "403": {
-            "description": "Forbidden: Invalid GPT Secret"
+            "description": "Forbidden: Invalid token"
           },
           "404": {
             "description": "File not found"
@@ -311,7 +311,7 @@
             }
           },
           "403": {
-            "description": "Forbidden: Invalid GPT Secret"
+            "description": "Forbidden: Invalid token"
           },
           "404": {
             "description": "File not found"
@@ -373,7 +373,7 @@
             }
           },
           "403": {
-            "description": "Forbidden: Invalid GPT Secret"
+            "description": "Forbidden: Invalid token"
           },
           "404": {
             "description": "File not found"
@@ -407,10 +407,10 @@
   },
   "components": {
     "securitySchemes": {
-      "GPTSecret": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-GPT-Secret"
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     },
     "schemas": {}

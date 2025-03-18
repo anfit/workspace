@@ -7,7 +7,7 @@
 
 ## ✨ Features
 
-- REST API secured via a pre-shared GPT secret (`X-GPT-Secret` header)
+- REST API secured via a Bearer token (`Authorization: Bearer <token>` header)
 - Operations scoped to a defined directory on the local filesystem
 - Fully compatible with Custom GPTs via OpenAPI tool definition
 - Minimal, self-contained Flask app with no external database
@@ -32,7 +32,7 @@ Workspace follows a minimal architecture for simplicity and portability:
 Client (Custom GPT / HTTP client)
         │
         ▼
-   [Nginx Reverse Proxy] ──▶ [Gunicorn WSGI Server] ──▶ [Flask App (workspace.py)]
+   [Nginx Reverse Proxy] ─▶ [Gunicorn WSGI Server] ─▶ [Flask App (workspace.py)]
                                                │
                                                ▼
                                   [Local Filesystem Workspace Folder]
@@ -59,11 +59,11 @@ For full setup and deployment instructions, including HTTP → HTTPS transition,
 
 ## 🔐 Security Model
 
-All protected operations require a pre-shared secret header:
+All protected operations require a Bearer token:
 ```
-X-GPT-Secret: your_gpt_secret
+Authorization: Bearer your_secret_token
 ```
-GPT tool calls must include this to access or modify file contents. The secret should be embedded in your Custom GPT configuration.
+GPT tool calls must include this to access or modify file contents. The token should be embedded in your Custom GPT configuration.
 
 ## 📑 API Endpoints (summary)
 
@@ -80,7 +80,7 @@ GPT tool calls must include this to access or modify file contents. The secret s
 
 To integrate this API with a Custom GPT:
 1. Upload or import `openapi.json` into the GPT tool definition. **Before doing so, make sure you edit the file and replace the `servers.url` field (currently set to a placeholder) with the actual domain or IP address where your API is hosted.**
-2. Configure the `X-GPT-Secret` header in your GPT setup.
+2. Configure the `Authorization: Bearer <token>` header in your GPT setup.
 3. Ensure the API server is reachable over HTTPS at the declared domain.
 4. Your GPT will now be able to list, read, create, and update files in the sandboxed directory.
 
