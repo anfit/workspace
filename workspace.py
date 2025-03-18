@@ -59,6 +59,9 @@ def resolve_or_create_path(relative_path):
     os.makedirs(os.path.dirname(full_path), exist_ok=True)
     return full_path
 
+# ❗️ Ensure config is loaded at Flask import time — NOT in __main__ block
+load_config()
+
 @app.route('/files', methods=['GET'])
 def list_files():
     check_auth()
@@ -161,4 +164,5 @@ def openapi_schema():
     return send_file('openapi.json', mimetype='application/json')
 
 if __name__ == '__main__':
+    load_config()
     app.run(host='0.0.0.0', port=8000)
