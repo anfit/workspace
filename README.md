@@ -20,7 +20,7 @@ Designed to integrate with a **Custom GPT Operator Tool**, this API allows a GPT
 - **List** files and subfolders in a root directory
 - **Read** content of a file by name
 - **Create** a new file under the root directory
-- **Update** existing file content by name
+- **Update** existing file content by name (⚠️ Requires full file content — diffs or partial updates are not supported)
 - **Rename** files
 - **Move** files
 - **Delete** files
@@ -36,7 +36,7 @@ Workspace follows a minimal architecture for simplicity and portability:
 Client (Custom GPT / HTTP client)
         │
         ▼
-   [Nginx Reverse Proxy] ─▶ [Gunicorn WSGI Server] ─▶ [Flask App (workspace.py)]
+   [Nginx Reverse Proxy] ▶ [Gunicorn WSGI Server] ▶ [Flask App (workspace.py)]
                                                │
                                                ▼
                                   [Local Filesystem Workspace Folder]
@@ -69,28 +69,28 @@ Authorization: Bearer your_secret_token
 ```
 GPT tool calls must include this to access or modify file contents. The token should be embedded in your Custom GPT configuration.
 
-## 📑 API Endpoints (summary)
+## 📖 API Endpoints (summary)
 
-| Method | Path                   | Description                              | Auth required |
-|--------|------------------------|------------------------------------------|----------------|
-| GET    | `/files`               | List all files in root directory         | ✅ Yes          |
-| GET    | `/files/{filename}`    | Read a file by name                      | ✅ Yes          |
-| POST   | `/files`               | Create a new file                        | ✅ Yes          |
-| PUT    | `/files/{filename}`    | Update a file by name                    | ✅ Yes          |
-| POST   | `/files/rename`        | Rename a file                            | ✅ Yes          |
-| POST   | `/files/move`          | Move a file                              | ✅ Yes          |
-| DELETE | `/files`               | Delete a file                            | ✅ Yes          |
-| POST   | `/commit`              | Commit changes to Git repository         | ✅ Yes          |
-| GET    | `/openapi.json`        | Get OpenAPI schema (for GPT integration) | ❌ No           |
-| GET    | `/health`              | Health check                             | ❌ No           |
+| Method | Path                   | Description                                                                 | Auth required |
+|--------|------------------------|------------------------------------------------------------------------------|----------------|
+| GET    | `/files`               | List all files in root directory                                            | ✅ Yes          |
+| GET    | `/files/{filename}`    | Read full content of a file                                                 | ✅ Yes          |
+| POST   | `/files`               | Create a new file with optional initial content                             | ✅ Yes          |
+| PUT    | `/files/{filename}`    | Replace content of an existing file (full content required, no diffs)       | ✅ Yes          |
+| POST   | `/files/rename`        | Rename an existing file (atomic operation)                                  | ✅ Yes          |
+| POST   | `/files/move`          | Move a file to another location                                             | ✅ Yes          |
+| DELETE | `/files`               | Delete a file permanently                                                   | ✅ Yes          |
+| POST   | `/commit`              | Commit all current changes to Git with a descriptive message                | ✅ Yes          |
+| GET    | `/openapi.json`        | Get OpenAPI schema (for GPT tool integration)                               | ❌ No           |
+| GET    | `/health`              | Check service health status                                                 | ❌ No           |
 
 ## 🤖 GPT Integration Guide
 
 To integrate this API with a Custom GPT:
-1. Upload or import `openapi.json` into the GPT tool definition. **Before doing so, make sure you edit the file and replace the `servers.url` field (currently set to a placeholder) with the actual domain or IP address where your API is hosted.**
+1. Upload or import `openapi.json` into the GPT tool definition. **Update the `servers.url` field to match your deployment domain/IP.**
 2. Configure the `Authorization: Bearer <token>` header in your GPT setup.
-3. Ensure the API server is reachable over HTTPS at the declared domain.
-4. Your GPT will now be able to list, read, create, update, rename, move, delete, and commit files in the sandboxed directory.
+3. Ensure the API server is reachable over HTTPS.
+4. Your GPT will now be able to manage files and commit changes programmatically.
 
 ## 📄 License
 

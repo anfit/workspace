@@ -15,6 +15,7 @@
     "/files": {
       "get": {
         "summary": "List all files recursively",
+        "description": "Recursively lists all files within the workspace directory, returning relative file paths. Useful for establishing current workspace state.",
         "operationId": "listFiles",
         "security": [
           {
@@ -42,6 +43,7 @@
       },
       "post": {
         "summary": "Create a new file",
+        "description": "Creates a new file in the workspace. The file path must not already exist. Optionally, the full file content can be specified at creation. Content should be passed as a complete string—partial initialization is not supported.",
         "operationId": "createFile",
         "security": [
           {
@@ -98,6 +100,7 @@
       },
       "delete": {
         "summary": "Delete a file",
+        "description": "Deletes an existing file by path. This operation is irreversible. Use with care when managing workspace structure.",
         "operationId": "deleteFile",
         "security": [
           {
@@ -153,6 +156,7 @@
     "/files/{path}": {
       "get": {
         "summary": "Read a file",
+        "description": "Reads and returns the full content of a specified file from the workspace. Useful for inspecting or processing current file contents.",
         "operationId": "readFile",
         "security": [
           {
@@ -198,6 +202,7 @@
       },
       "put": {
         "summary": "Update an existing file",
+        "description": "Replaces the full content of an existing file with new content. Only full file content is accepted—diffs or partial content updates are not supported.",
         "operationId": "updateFile",
         "security": [
           {
@@ -260,6 +265,7 @@
     "/files/rename": {
       "post": {
         "summary": "Rename a file",
+        "description": "Renames a file by changing its path. This is equivalent to an atomic move operation. Source and target paths must be distinct and valid.",
         "operationId": "renameFile",
         "security": [
           {
@@ -322,6 +328,7 @@
     "/files/move": {
       "post": {
         "summary": "Move a file",
+        "description": "Moves a file from one path to another location in the workspace directory. Useful for refactoring or organizing files.",
         "operationId": "moveFile",
         "security": [
           {
@@ -384,6 +391,7 @@
     "/health": {
       "get": {
         "summary": "Health check",
+        "description": "Returns the health status of the workspace API service. Can be used for automated monitoring or testing connectivity.",
         "operationId": "healthCheck",
         "responses": {
           "200": {
@@ -407,9 +415,12 @@
     "/commit": {
       "post": {
         "summary": "Commit changes to Git repository",
+        "description": "Commits all current workspace changes to the Git repository. The commit message must summarize the change clearly and follow best practices (e.g., 'feat:', 'fix:', 'refactor:').",
         "operationId": "commitChanges",
         "security": [
-          { "BearerAuth": [] }
+          {
+            "BearerAuth": []
+          }
         ],
         "requestBody": {
           "required": true,
@@ -435,15 +446,23 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" },
-                    "commit_message": { "type": "string" }
+                    "message": {
+                      "type": "string"
+                    },
+                    "commit_message": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
-          "403": { "description": "Forbidden: Invalid token" },
-          "500": { "description": "Git commit failed" }
+          "403": {
+            "description": "Forbidden: Invalid token"
+          },
+          "500": {
+            "description": "Git commit failed"
+          }
         }
       }
     }
