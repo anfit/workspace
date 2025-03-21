@@ -262,6 +262,95 @@
         }
       }
     },
+    "/files/search": {
+      "post": {
+        "summary": "Search text or patterns in files",
+        "description": "Search files for literal text or regex patterns and return matches with surrounding context lines.",
+        "operationId": "searchFiles",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "literal",
+                      "regex"
+                    ],
+                    "default": "literal"
+                  },
+                  "context_lines": {
+                    "type": "integer",
+                    "default": 2
+                  },
+                  "paths": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of search matches with context",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string"
+                      },
+                      "line": {
+                        "type": "integer"
+                      },
+                      "match": {
+                        "type": "string"
+                      },
+                      "context_before": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "context_after": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden: Invalid token"
+          }
+        }
+      }
+    },
     "/files/rename": {
       "post": {
         "summary": "Rename a file",

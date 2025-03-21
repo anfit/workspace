@@ -3,6 +3,7 @@ import os
 import shutil
 import fnmatch
 import subprocess
+import re
 
 app = Flask(__name__)
 
@@ -45,7 +46,7 @@ def check_auth():
     if not auth_header or not auth_header.startswith("Bearer "):
         abort(403, description="Forbidden: Missing or invalid Authorization header.")
     token = auth_header.split(" ", 1)[1]
-    if token != CONFIG["gpt_shared_secret"]:
+    if token != CONFIG.get("gpt_shared_secret"):
         abort(403, description="Forbidden: Invalid token.")
 
 def safe_path(relative_path):
@@ -59,7 +60,6 @@ def resolve_or_create_path(relative_path):
     os.makedirs(os.path.dirname(full_path), exist_ok=True)
     return full_path
 
-# ❗️ Ensure config is loaded at Flask import time — NOT in __main__ block
 load_config()
 
 @app.route('/files', methods=['GET'])
@@ -76,6 +76,47 @@ def list_files():
             if not is_gitignored(full_fpath):
                 files.append(fpath)
     return jsonify(files)
+
+@app.route('/files/search', methods=['POST'])
+def search_files():
+    check_auth()
+    data = request.get_json()
+    query = data.get('query')
+    mode = data.get('mode', 'literal')
+    context_lines = int(data.get('context_lines', 2))
+    path_filters = data.get('paths', [])
+
+    matches = []
+    for root, dirs, files in os.walk(CONFIG['base_path']):
+        dirs[:] = [d for d in dirs if d not in ALWAYS_EXCLUDE_DIRS]
+        for filename in files:
+            full_path = os.path.join(root, filename)
+            if is_gitignored(full_path):
+                continue
+
+            rel_path = os.path.relpath(full_path, CONFIG['base_path'])
+            if path_filters and not any(fnmatch.fnmatch(rel_path, pattern) for pattern in path_filters):
+                continue
+
+            try:
+                with open(full_path, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                for idx, line in enumerate(lines):
+                    if (mode == 'regex' and re.search(query, line)) or (mode == 'literal' and query in line):
+                        match = {
+                            'path': rel_path,
+                            'line': idx + 1,
+                            'match': line.strip(),
+                            'context_before': lines[max(0, idx - context_lines):idx],
+                            'context_after': lines[idx + 1:idx + 1 + context_lines]
+                        }
+                        match['context_before'] = [l.rstrip('\n') for l in match['context_before']]
+                        match['context_after'] = [l.rstrip('\n') for l in match['context_after']]
+                        matches.append(match)
+            except Exception:
+                continue
+
+    return jsonify(matches)
 
 @app.route('/files/<path:filename>', methods=['GET'])
 def get_file(filename):

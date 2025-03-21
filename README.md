@@ -1,6 +1,6 @@
 # Workspace – REST API Interface for File-Based Storage for Custom GPTs
 
-**Workspace** is a lightweight, standalone REST API service that acts as a bridge between a custom GPT (or any other HTTP client) and a sandboxed section of the deployment server’s **filesystem workspace folder**. It enables programmatic listing, creation, reading, updating, renaming, moving, deleting, and committing of files, allowing GPT-based document automation or bot integrations without needing a database or third-party system.
+**Workspace** is a lightweight, standalone REST API service that acts as a bridge between a custom GPT (or any other HTTP client) and a sandboxed section of the deployment server’s **filesystem workspace folder**. It enables programmatic listing, creation, reading, updating, renaming, moving, deleting, searching, and committing of files, allowing GPT-based document automation or bot integrations without needing a database or third-party system.
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -24,6 +24,7 @@ Designed to integrate with a **Custom GPT Operator Tool**, this API allows a GPT
 - **Rename** files
 - **Move** files
 - **Delete** files
+- **Search** text or patterns in files with context (literal or regex modes)
 - **Commit** changes to a Git repository
 
 This provides a clean and safe interface for document automation in a sandboxed file environment.
@@ -51,6 +52,7 @@ workspace/
 ├── workspace.py                    # Flask application implementing the API
 ├── openapi.json                    # OpenAPI 3.1 schema describing the API interface (update servers.url before use)
 ├── workspace.properties.example   # Example configuration file
+├── test_workspace.py              # Test suite covering core endpoints
 ├── deployment/
 │   ├── workspace.http             # Nginx config for initial HTTP deployment
 │   ├── workspace.ssl              # Nginx config for HTTPS/SSL deployment
@@ -80,6 +82,7 @@ GPT tool calls must include this to access or modify file contents. The token sh
 | POST   | `/files/rename`        | Rename an existing file (atomic operation)                                  | ✅ Yes          |
 | POST   | `/files/move`          | Move a file to another location                                             | ✅ Yes          |
 | DELETE | `/files`               | Delete a file permanently                                                   | ✅ Yes          |
+| POST   | `/files/search`        | Search for literal or regex patterns with context lines                     | ✅ Yes          |
 | POST   | `/commit`              | Commit all current changes to Git with a descriptive message                | ✅ Yes          |
 | GET    | `/openapi.json`        | Get OpenAPI schema (for GPT tool integration)                               | ❌ No           |
 | GET    | `/health`              | Check service health status                                                 | ❌ No           |
